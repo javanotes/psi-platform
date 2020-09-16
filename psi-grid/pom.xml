@@ -140,7 +140,7 @@
         <!-- FinalName enforces that ALL java artifacts will be named app.jar
                  This is so all of our build scripts will be the same.
                  -->
-        <finalName>psi-app</finalName>
+
         <plugins>
             <plugin>
                 <!-- This plugin forces a fat-jar build -->
