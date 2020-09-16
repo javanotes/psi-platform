@@ -1,0 +1,21 @@
+docker run -d --name psi1 \
+-e SPRING_CONFIG_LOCATION="/opt/hazelcast/config_ext/application.properties" \
+-v /Users/sdalui/workspace/c360/REDO/psi-architecture/docker/config:/opt/hazelcast/config_ext \
+-e JAVA_OPTS="-Dhazelcast.local.publicAddress=192.168.1.5:5701" -p 5701:5701 \
+platform/psi:latest
+
+docker run -d --name psi2 \
+-e SPRING_CONFIG_LOCATION="/opt/hazelcast/config_ext/application.properties" \
+-v /Users/sdalui/workspace/c360/REDO/psi-architecture/docker/config:/opt/hazelcast/config_ext \
+-e JAVA_OPTS="-Dhazelcast.local.publicAddress=192.168.1.5:5702" -p 5702:5701 \
+platform/psi:latest
+
+docker run -d --name psi1 --network host \
+-e SPRING_CONFIG_LOCATION="/opt/hazelcast/config_ext/application.properties" \
+-v /Users/sdalui/workspace/c360/REDO/psi-architecture/docker/config:/opt/hazelcast/config_ext \
+platform/psi:latest
+
+docker run -d --name psi2 --network host \
+-e SPRING_CONFIG_LOCATION="/opt/hazelcast/config_ext/application.properties" \
+-v /Users/sdalui/workspace/c360/REDO/psi-architecture/docker/config:/opt/hazelcast/config_ext \
+platform/psi:latest

@@ -1,0 +1,42 @@
+{
+  "auditType": {
+    "applicationId": "gan",
+    "auditDateTime": "2040-03-04T18:13:51",
+    "auditSourceId": "gan",
+    "auditSourceSysCode": "gan",
+    "sourceSystemUserId": "gan",
+    "systemModifiedDateTime": "2020-06-11T17:49:56.023222Z",
+    "applicationSourceSysCode": "gan",
+    "auditTransactionTypeCode": null,
+    "sourceSystemUserSourceSysCode": "ga"
+  },
+  "sourceSysCode": "C360",
+  "globalActivation": [
+    {
+      "role": "Member1",
+      "timeZone": null,
+      "consentCode": "CC1",
+      "phoneNumber": "9729917755",
+      "activationStatus": "PENDING",
+      "phoneNumberAndRole": ""
+    },
+    {
+      "role": "Member2",
+      "timeZone": null,
+      "consentCode": "CC1",
+      "phoneNumber": "9729917756",
+      "activationStatus": "PENDING",
+      "phoneNumberAndRole": ""
+    },
+    {
+      "role": "Member3",
+      "timeZone": null,
+      "consentCode": "CC1",
+      "phoneNumber": "9729917757",
+      "activationStatus": "PENDING",
+      "phoneNumberAndRole": ""
+    }
+  ],
+  "securityAttribute": null,
+  "individualIdentifier": "000002ef-d954-4d69-a46c-e2ebfae2f358"
+}

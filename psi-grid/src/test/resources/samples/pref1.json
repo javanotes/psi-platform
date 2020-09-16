@@ -1,0 +1,328 @@
+{
+  "topic": [
+    {
+      "property": [
+        {
+          "propertyCode": "Document_Delivery_Channel",
+          "propertyOption": [
+            {
+              "optionCode": "EM",
+              "optionValue": "Paperless",
+              "optionDescription": "Email notification that a document is available to view online. Some communications may not be available for email notification.",
+              "isSelectedIndicator": null
+            }
+          ],
+          "propertyUsageCode": null,
+          "propertyDescription": "Document Delivery Channel Property"
+        },
+        {
+          "propertyCode": "Consent_Code",
+          "propertyOption": [
+            {
+              "optionCode": "Regulatory_notices",
+              "optionValue": "",
+              "optionDescription": "",
+              "isSelectedIndicator": null
+            }
+          ],
+          "propertyUsageCode": null,
+          "propertyDescription": "Consent_Code"
+        }
+      ],
+      "topicCode": "Benefits_and_plans",
+      "topicAuditType": {
+        "topicAuditDateTime": "2020-02-27T04:02:24",
+        "topicAuditSourceId": "ISET",
+        "systemModifiedDateTime": "2020-02-27T15:32:24.000334Z",
+        "topicAuditApplicationId": "ISET",
+        "topicAuditSourceSysCode": "ISL",
+        "topicAuditSourceSystemUserId": "Perf_Testing",
+        "topicAuditTransactionTypeCode": "U",
+        "topicAuditApplicationSourceSysCode": "",
+        "topicAuditSourceSystemUserSourceSysCode": "Perf_Testing"
+      },
+      "topicDescription": "Benefits and plans preference"
+    },
+    {
+      "property": [
+        {
+          "propertyCode": "Document_Delivery_Channel",
+          "propertyOption": [
+            {
+              "optionCode": "EM",
+              "optionValue": "Paperless",
+              "optionDescription": "Email notification that a document is available to view online. Some communications may not be available for email notification.",
+              "isSelectedIndicator": null
+            }
+          ],
+          "propertyUsageCode": null,
+          "propertyDescription": "Document Delivery Channel Property"
+        },
+        {
+          "propertyCode": "Consent_Code",
+          "propertyOption": [
+            {
+              "optionCode": "Regulatory_notices",
+              "optionValue": "",
+              "optionDescription": "",
+              "isSelectedIndicator": null
+            }
+          ],
+          "propertyUsageCode": null,
+          "propertyDescription": "Consent_Code"
+        }
+      ],
+      "topicCode": "Claims_billing_and_payments",
+      "topicAuditType": {
+        "topicAuditDateTime": "2020-02-27T04:02:24",
+        "topicAuditSourceId": "ISET",
+        "systemModifiedDateTime": "2020-02-27T15:32:24.000334Z",
+        "topicAuditApplicationId": "ISET",
+        "topicAuditSourceSysCode": "ISL",
+        "topicAuditSourceSystemUserId": "Perf_Testing",
+        "topicAuditTransactionTypeCode": "U",
+        "topicAuditApplicationSourceSysCode": "",
+        "topicAuditSourceSystemUserSourceSysCode": "Perf_Testing"
+      },
+      "topicDescription": "Claims, billing and payments preference"
+    },
+    {
+      "property": [
+        {
+          "propertyCode": "Document_Delivery_Channel",
+          "propertyOption": [
+            {
+              "optionCode": "EM",
+              "optionValue": "Paperless",
+              "optionDescription": "Email notification that a document is available to view online. Some communications may not be available for email notification.",
+              "isSelectedIndicator": null
+            }
+          ],
+          "propertyUsageCode": null,
+          "propertyDescription": "Document Delivery Channel Property"
+        },
+        {
+          "propertyCode": "Consent_Code",
+          "propertyOption": [
+            {
+              "optionCode": "Regulatory_notices",
+              "optionValue": "",
+              "optionDescription": "",
+              "isSelectedIndicator": null
+            }
+          ],
+          "propertyUsageCode": null,
+          "propertyDescription": "Consent_Code"
+        }
+      ],
+      "topicCode": "RX_Pharmacy_prescription",
+      "topicAuditType": {
+        "topicAuditDateTime": "2020-02-27T04:02:24",
+        "topicAuditSourceId": "ISET",
+        "systemModifiedDateTime": "2020-02-27T15:32:24.000334Z",
+        "topicAuditApplicationId": "ISET",
+        "topicAuditSourceSysCode": "ISL",
+        "topicAuditSourceSystemUserId": "Perf_Testing",
+        "topicAuditTransactionTypeCode": "U",
+        "topicAuditApplicationSourceSysCode": "",
+        "topicAuditSourceSystemUserSourceSysCode": "Perf_Testing"
+      },
+      "topicDescription": "Pharmacy care information"
+    },
+    {
+      "property": [
+        {
+          "propertyCode": "Document_Delivery_Channel",
+          "propertyOption": [
+            {
+              "optionCode": "EM",
+              "optionValue": "Paperless",
+              "optionDescription": "Email notification that a document is available to view online. Some communications may not be available for email notification.",
+              "isSelectedIndicator": null
+            }
+          ],
+          "propertyUsageCode": null,
+          "propertyDescription": "Document Delivery Channel Property"
+        },
+        {
+          "propertyCode": "Consent_Code",
+          "propertyOption": [
+            {
+              "optionCode": "Regulatory_notices",
+              "optionValue": "",
+              "optionDescription": "",
+              "isSelectedIndicator": null
+            }
+          ],
+          "propertyUsageCode": null,
+          "propertyDescription": "Consent_Code"
+        }
+      ],
+      "topicCode": "Regulatory_notices",
+      "topicAuditType": {
+        "topicAuditDateTime": "2020-02-27T04:02:24",
+        "topicAuditSourceId": "ISET",
+        "systemModifiedDateTime": "2020-02-27T15:32:24.000334Z",
+        "topicAuditApplicationId": "ISET",
+        "topicAuditSourceSysCode": "ISL",
+        "topicAuditSourceSystemUserId": "Perf_Testing",
+        "topicAuditTransactionTypeCode": "U",
+        "topicAuditApplicationSourceSysCode": "",
+        "topicAuditSourceSystemUserSourceSysCode": "Perf_Testing"
+      },
+      "topicDescription": "Regulatory notices preference"
+    },
+    {
+      "property": [
+        {
+          "propertyCode": "Document_Delivery_Channel",
+          "propertyOption": [
+            {
+              "optionCode": "EM",
+              "optionValue": "Paperless",
+              "optionDescription": "Email notification that a document is available to view online. Some communications may not be available for email notification.",
+              "isSelectedIndicator": null
+            }
+          ],
+          "propertyUsageCode": null,
+          "propertyDescription": "Document Delivery Channel Property"
+        },
+        {
+          "propertyCode": "Consent_Code",
+          "propertyOption": [
+            {
+              "optionCode": "Regulatory_notices",
+              "optionValue": "",
+              "optionDescription": "",
+              "isSelectedIndicator": null
+            }
+          ],
+          "propertyUsageCode": null,
+          "propertyDescription": "Consent_Code"
+        }
+      ],
+      "topicCode": "Tax_documents",
+      "topicAuditType": {
+        "topicAuditDateTime": "2020-02-27T04:02:24",
+        "topicAuditSourceId": "ISET",
+        "systemModifiedDateTime": "2020-02-27T15:32:24.000334Z",
+        "topicAuditApplicationId": "ISET",
+        "topicAuditSourceSysCode": "ISL",
+        "topicAuditSourceSystemUserId": "Perf_Testing",
+        "topicAuditTransactionTypeCode": "U",
+        "topicAuditApplicationSourceSysCode": "",
+        "topicAuditSourceSystemUserSourceSysCode": "Perf_Testing"
+      },
+      "topicDescription": "Tax documents preference"
+    },
+    {
+      "property": [
+        {
+          "propertyCode": "Document_Delivery_Channel",
+          "propertyOption": [
+            {
+              "optionCode": "EM",
+              "optionValue": "Paperless",
+              "optionDescription": "Email notification that a document is available to view online. Some communications may not be available for email notification.",
+              "isSelectedIndicator": null
+            }
+          ],
+          "propertyUsageCode": null,
+          "propertyDescription": "Document Delivery Channel Property"
+        },
+        {
+          "propertyCode": "Consent_Code",
+          "propertyOption": [
+            {
+              "optionCode": "Regulatory_notices",
+              "optionValue": "",
+              "optionDescription": "",
+              "isSelectedIndicator": null
+            }
+          ],
+          "propertyUsageCode": null,
+          "propertyDescription": "Consent_Code"
+        }
+      ],
+      "topicCode": "Required_documents",
+      "topicAuditType": {
+        "topicAuditDateTime": "2020-02-27T04:02:24",
+        "topicAuditSourceId": "ISET",
+        "systemModifiedDateTime": "2020-02-27T15:32:24.000334Z",
+        "topicAuditApplicationId": "ISET",
+        "topicAuditSourceSysCode": "ISL",
+        "topicAuditSourceSystemUserId": "Perf_Testing",
+        "topicAuditTransactionTypeCode": "U",
+        "topicAuditApplicationSourceSysCode": "",
+        "topicAuditSourceSystemUserSourceSysCode": "Perf_Testing"
+      },
+      "topicDescription": "Required communications preference"
+    },
+    {
+      "property": [
+        {
+          "propertyCode": "Marketing_channel_delivery",
+          "propertyOption": [
+            {
+              "optionCode": "EM",
+              "optionValue": "Email",
+              "optionDescription": "Email notification that a document is available to view online. Some communications may not be available for email notification.",
+              "isSelectedIndicator": null
+            }
+          ],
+          "propertyUsageCode": null,
+          "propertyDescription": "Marketing channel delivery"
+        },
+        {
+          "propertyCode": "Consent_Code",
+          "propertyOption": [
+            {
+              "optionCode": "Marketing_Promotional_ConsentId",
+              "optionValue": "",
+              "optionDescription": "",
+              "isSelectedIndicator": null
+            }
+          ],
+          "propertyUsageCode": null,
+          "propertyDescription": "Consent_Code"
+        }
+      ],
+      "topicCode": "Offers_and_programs",
+      "topicAuditType": {
+        "topicAuditDateTime": "2020-02-05T23:58:33",
+        "topicAuditSourceId": "ISET",
+        "systemModifiedDateTime": "2020-02-06T11:28:33.000110Z",
+        "topicAuditApplicationId": "ISET",
+        "topicAuditSourceSysCode": "ISL",
+        "topicAuditSourceSystemUserId": "Perf_Testing",
+        "topicAuditTransactionTypeCode": "I",
+        "topicAuditApplicationSourceSysCode": "",
+        "topicAuditSourceSystemUserSourceSysCode": "Perf_Testing"
+      },
+      "topicDescription": "Offers and programs preference"
+    }
+  ],
+  "auditType": {
+    "applicationId": "ISET",
+    "auditDateTime": "2020-02-27T04:02:24",
+    "auditSourceId": "ISET",
+    "auditSourceSysCode": "ISL",
+    "sourceSystemUserId": "Perf_Testing",
+    "systemModifiedDateTime": "2020-02-27T15:32:24.000334Z",
+    "applicationSourceSysCode": "",
+    "auditTransactionTypeCode": null,
+    "sourceSystemUserSourceSysCode": "Perf_Testing"
+  },
+  "actionCode": null,
+  "entityStopDate": null,
+  "entityStopTime": null,
+  "entityStartDate": null,
+  "entityStartTime": null,
+  "sourceSystemCode": "c360",
+  "securityAttribute": [],
+  "softDeleteIndicator": null,
+  "individualIdentifier": "000067f6-8155-50f5-5331-552885dab68d",
+  "sourceSystemDescription": "Consumer 360",
+  "individualIdentiferSourceSysCode": null,
+  "individualIdentiferSourceSysDescription": null
+}
