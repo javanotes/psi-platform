@@ -3,13 +3,16 @@ package com.reactiveminds.psi.streams.service;
 import org.eclipse.jetty.client.HttpClient;
 import org.eclipse.jetty.client.api.ContentResponse;
 import org.eclipse.jetty.http.HttpMethod;
+import org.eclipse.jetty.http.MimeTypes;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Component;
+import org.springframework.util.MimeTypeUtils;
 import spark.Request;
 import spark.Response;
+import spark.staticfiles.MimeType;
 
 import javax.annotation.PostConstruct;
 import javax.annotation.PreDestroy;
@@ -24,12 +27,17 @@ class SimpleHttpService implements Runnable{
     static final String ARG_STORE = ":store";
     static final String ARG_KEY = ":key";
     static final String QUERY_PATH = "/query/"+ARG_STORE+"/"+ARG_KEY;
+    static final String COUNT_PATH = "/count/"+ARG_STORE;
+    static final String COUNT_PATH_LOCAL = "/count/local/"+ARG_STORE;
+    static final String QUERY_PATH2 = "/query/raw/"+ARG_STORE+"/"+ARG_KEY;
 
     private static final Logger log = LoggerFactory.getLogger(SimpleHttpService.class);
 
     @Autowired
     StreamsDataService streamsDataService;
+
     private void openEndpoints() {
+
         get(QUERY_PATH, (Request request, Response response) -> {
             String store = request.params(ARG_STORE);
             String key = request.params(ARG_KEY);
@@ -56,7 +64,51 @@ class SimpleHttpService implements Runnable{
             }
         });
 
+        get(COUNT_PATH, (Request request, Response response) -> {
+            String store = request.params(ARG_STORE);
+            Long value = null;
+            try {
+                log.info("getting count for '{}'",store);
+                value = streamsDataService.count(store);
 
+            } catch (Exception e) {
+                log.error("== controller error ==", e);
+                response.status(500);
+                return "Internal error";
+            }
+            if(value != null){
+                response.status(200);
+                response.header("Content-Type", "text/plain; charset=utf-8");
+                return value;
+            }
+            else{
+                response.status(404);
+                return "Not Found!";
+            }
+        });
+
+        get(COUNT_PATH_LOCAL, (Request request, Response response) -> {
+            String store = request.params(ARG_STORE);
+            Long value = null;
+            try {
+                log.info("getting count for '{}'",store);
+                value = ((DataServiceProxy)streamsDataService).localCount(store);
+
+            } catch (Exception e) {
+                log.error("== controller error ==", e);
+                response.status(500);
+                return "Internal error";
+            }
+            if(value != null){
+                response.status(200);
+                response.header("Content-Type", "text/plain; charset=utf-8");
+                return value;
+            }
+            else{
+                response.status(404);
+                return "Not Found!";
+            }
+        });
     }
 
     String invokeGet(String path)  {

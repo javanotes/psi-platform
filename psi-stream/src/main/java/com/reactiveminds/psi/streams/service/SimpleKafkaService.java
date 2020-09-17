@@ -11,6 +11,7 @@ import org.springframework.stereotype.Component;
 
 import java.nio.charset.StandardCharsets;
 
+@Deprecated
 @ConditionalOnProperty(name = "psi.stream.queryListener.kafkaEndpoint", havingValue = "true")
 @Component
 class SimpleKafkaService {

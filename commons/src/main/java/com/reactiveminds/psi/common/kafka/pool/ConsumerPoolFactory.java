@@ -3,6 +3,7 @@ package com.reactiveminds.psi.common.kafka.pool;
 import org.apache.commons.pool2.BasePooledObjectFactory;
 import org.apache.commons.pool2.PooledObject;
 import org.apache.commons.pool2.impl.DefaultPooledObject;
+import org.apache.commons.pool2.impl.GenericObjectPool;
 import org.apache.kafka.clients.consumer.ConsumerConfig;
 
 import java.lang.reflect.Proxy;
@@ -13,8 +14,10 @@ import java.util.concurrent.atomic.AtomicInteger;
 class ConsumerPoolFactory<K,V> extends BasePooledObjectFactory<PoolableConsumer<K, V>> {
 
 	private static AtomicInteger n = new AtomicInteger();
-	
+	KafkaConsumerPool<K, V> objectPoolInstance;
+
 	private final Map<String, Object> consumerProperties = new HashMap<>();
+
 	@SuppressWarnings("unchecked")
 	@Override
 	public PoolableConsumer<K, V> create() throws Exception {
@@ -25,7 +28,7 @@ class ConsumerPoolFactory<K,V> extends BasePooledObjectFactory<PoolableConsumer<
 
 		props.put(ConsumerConfig.GROUP_ID_CONFIG, groupdId+"__"+n.getAndIncrement());
 		return (PoolableConsumer<K, V>) Proxy.newProxyInstance(Thread.currentThread().getContextClassLoader(), new Class[] { PoolableConsumer.class },
-				new ConsumerProxy<K, V>(new HashMap<>(props)));
+				new ConsumerProxy<K, V>(new HashMap<>(props), objectPoolInstance));
 	}
 
 	@Override

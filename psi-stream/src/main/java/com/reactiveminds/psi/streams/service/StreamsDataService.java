@@ -5,6 +5,7 @@ import com.reactiveminds.psi.streams.config.HostStoreInfo;
 import java.util.List;
 
 public interface StreamsDataService {
+    long count(String map);
     /**
      *
      * @param map
@@ -17,7 +18,7 @@ public interface StreamsDataService {
      *
      * @return
      */
-    List<HostStoreInfo> metadata();
+    List<HostStoreInfo> metadata(String map);
 
     /**
      *

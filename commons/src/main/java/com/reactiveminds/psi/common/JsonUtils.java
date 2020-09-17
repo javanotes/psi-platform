@@ -10,9 +10,15 @@ import com.fasterxml.jackson.databind.ObjectWriter;
 import org.apache.avro.Schema;
 import org.apache.avro.specific.SpecificRecord;
 import org.apache.avro.specific.SpecificRecordBase;
+import org.apache.commons.pool2.impl.GenericObjectPool;
+import org.springframework.beans.BeansException;
+import org.springframework.beans.PropertyAccessor;
+import org.springframework.beans.PropertyAccessorFactory;
+import org.springframework.util.StringUtils;
 
 import java.io.IOException;
 import java.io.UncheckedIOException;
+import java.util.Properties;
 
 public class JsonUtils {
     static abstract class AvroMixin {
@@ -78,6 +84,22 @@ public class JsonUtils {
         } catch (JsonProcessingException e) {
             throw new UncheckedIOException(e);
         }
+    }
+
+    public static void copyBeanProperties(Object target, Properties props, String propPrefix){
+        PropertyAccessor myAccessor = PropertyAccessorFactory.forBeanPropertyAccess(target);
+        props.forEach((k,v) -> {
+            String beanProp = k.toString();
+            if(propPrefix != null && k.toString().startsWith(propPrefix)){
+                beanProp = beanProp.substring(propPrefix.length());
+            }
+            try {
+                myAccessor.setPropertyValue(beanProp, v);
+            } catch (BeansException e) {
+                e.printStackTrace();
+            }
+        });
+
     }
 
 

@@ -58,17 +58,8 @@ public class StreamConfiguration {
     @Value("${psi.stream.queryListener.port:9999}")
     private int advPort;
 
-    public class HostAndPort{
-        private HostAndPort() {
-            this.host = advHost;
-            this.port = advPort;
-        }
-
-        public final String host;
-        public final int port;
-    }
-    public HostAndPort getHostAndPort(){
-        return new HostAndPort();
+    public HostStoreInfo localInstance(){
+        return new HostStoreInfo(advHost, advPort);
     }
 
     @Scope(scopeName = ConfigurableBeanFactory.SCOPE_PROTOTYPE)
