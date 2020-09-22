@@ -1,6 +1,6 @@
 package com.reactiveminds.psi.streams.config;
 
-import com.reactiveminds.psi.common.imdg.ClientConfiguration;
+import com.reactiveminds.psi.common.imdg.DataGridConfiguration;
 import com.reactiveminds.psi.common.kafka.KafkaClientsConfiguration;
 import com.reactiveminds.psi.streams.processor.StreamStateProcessor;
 import com.reactiveminds.psi.streams.processor.TransactionStateProcessor;
@@ -26,9 +26,7 @@ import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.context.annotation.Import;
 import org.springframework.context.annotation.Scope;
-import org.springframework.core.task.TaskExecutor;
 import org.springframework.kafka.core.KafkaAdmin;
-import org.springframework.scheduling.concurrent.ThreadPoolTaskExecutor;
 import org.springframework.util.Assert;
 
 import javax.annotation.PostConstruct;
@@ -37,7 +35,7 @@ import java.util.Arrays;
 import java.util.Properties;
 import java.util.concurrent.ExecutionException;
 
-@Import({KafkaClientsConfiguration.class, ClientConfiguration.class})
+@Import({ DataGridConfiguration.class, KafkaClientsConfiguration.class})
 @Configuration
 @EnableConfigurationProperties({AppProperties.class})
 public class StreamConfiguration {
@@ -52,10 +50,7 @@ public class StreamConfiguration {
     private String advHost;
     @Value("${psi.stream.maxThreads:1}")
     private int threads;
-    @Value("${psi.stream.2pc.maxThreads:10}")
-    private int txnmaxThreads;
-    //@Value("${psi.stream.2pc.minThreads:1}")
-    private int txnminThreads;
+
     @Value("${psi.stream.queryListener.port:9999}")
     private int advPort;
 
@@ -83,15 +78,6 @@ public class StreamConfiguration {
                 Serdes.ByteArray(),
                 Serdes.ByteArray())
                 .withLoggingDisabled(); // the kafka stream is the source of truth for us
-    }
-    @Bean
-    ThreadPoolTaskExecutor txnWorkers(){
-        ThreadPoolTaskExecutor poolTaskExecutor = new ThreadPoolTaskExecutor();
-        poolTaskExecutor.setAllowCoreThreadTimeOut(false);
-        poolTaskExecutor.setThreadNamePrefix("PSI.Txn.Agent-");
-        poolTaskExecutor.setCorePoolSize(txnmaxThreads);
-        poolTaskExecutor.setMaxPoolSize(txnmaxThreads);
-        return poolTaskExecutor;
     }
 
     @Bean

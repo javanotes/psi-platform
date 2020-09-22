@@ -1,4 +1,4 @@
-package com.reactiveminds.psi.common.imdg;
+package com.reactiveminds.psi.client;
 
 import com.hazelcast.core.ExecutionCallback;
 import com.hazelcast.core.HazelcastInstance;
@@ -9,6 +9,7 @@ import com.reactiveminds.psi.common.OperationSet;
 import com.reactiveminds.psi.client.GridTransactionContext;
 import com.reactiveminds.psi.common.err.GridOperationFailedException;
 import com.reactiveminds.psi.common.err.GridTransactionException;
+import com.reactiveminds.psi.common.imdg.TransactionOrchestratorRunner;
 import io.confluent.kafka.streams.serdes.avro.SpecificAvroDeserializer;
 import io.confluent.kafka.streams.serdes.avro.SpecificAvroSerializer;
 import org.apache.avro.specific.SpecificRecord;
@@ -32,8 +33,10 @@ class TransactionContextProxy implements GridTransactionContext {
 
     @Value("${psi.grid.client.transactionTimeoutSeconds:120}")
     long txnTimeoutSec;
-    @Value("${psi.grid.client.twoPhaseCommit.enable:true}")
+    @Value("${psi.grid.client.2pc.enable:true}")
     boolean twoPhaseEnabled;
+    @Value("${psi.grid.client.2pc.synchronousMode.enable:false}")
+    boolean twoPhaseSynchEnabled;
 
     TransactionContextProxy() {
     }
@@ -81,18 +84,19 @@ class TransactionContextProxy implements GridTransactionContext {
         GridOperationFailedException fe = new GridOperationFailedException("remote execution failed on 2pc");
         CountDownLatch l = new CountDownLatch(1);
         AtomicBoolean fail = new AtomicBoolean(false);
-        hazelcastInstance.getExecutorService(OperationSet.TXN_MAP).submitToKeyOwner(new TransactionOrchestratorRunner(mapKeys), mapKeys.getTxnId(), new ExecutionCallback<Void>() {
-            @Override
-            public void onResponse(Void aVoid) {
-                l.countDown();
-            }
+        hazelcastInstance.getExecutorService(OperationSet.TXN_MAP).submitToKeyOwner(new TransactionOrchestratorRunner(mapKeys, twoPhaseSynchEnabled), mapKeys.getTxnId(),
+                new ExecutionCallback<Void>() {
+                    @Override
+                    public void onResponse(Void aVoid) {
+                        l.countDown();
+                    }
 
-            @Override
-            public void onFailure(Throwable throwable) {
-                fe.initCause(throwable);
-                fail.set(true);
-                l.countDown();
-            }
+                    @Override
+                    public void onFailure(Throwable throwable) {
+                        fe.initCause(throwable);
+                        fail.set(true);
+                        l.countDown();
+                    }
         });
         try {
             l.await(60, TimeUnit.SECONDS);

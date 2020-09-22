@@ -148,7 +148,7 @@ public class TransactionOrchestrator implements Runnable, Serializable {
                 rec.headers().add(OperationSet.HEADER_TXN_CLIENT_TYP, SerdeUtils.stringToBytes(clientType.name()));
 
                 producer.send(rec).get();
-                log.info("Txn: {}, published to event topic - {}. 2pc begin read offset {}", operationSet.getTxnId(), mapStoreTopic.get(op.getMap()), twoPhaseConverse.getReadOffset());
+                log.debug("Txn: {}, published to event topic - {}. 2pc read offset: {}[{}]", operationSet.getTxnId(), mapStoreTopic.get(op.getMap()), twoPhaseConverse.getTopic(), twoPhaseConverse.getReadOffset());
             }
             catch (InterruptedException e) {
                 Thread.currentThread().interrupt();

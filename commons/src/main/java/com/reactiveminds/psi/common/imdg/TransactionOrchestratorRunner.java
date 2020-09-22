@@ -18,13 +18,24 @@ public class TransactionOrchestratorRunner implements Runnable, Serializable, Ha
         this.operationSet = operationSet;
     }
 
+    public TransactionOrchestratorRunner(OperationSet operationSet, boolean synchRunMode) {
+        this.operationSet = operationSet;
+        this.synchRunMode = synchRunMode;
+    }
+
+    private boolean synchRunMode = false;
     @Override
     public void run() {
         TransactionOrchestrator orchestrator = SpringContextWrapper.getBean(TransactionOrchestrator.class, operationSet);
         orchestrator.initiateProtocol();
         // execute on local member
-        ThreadPoolTaskExecutor taskExecutor = SpringContextWrapper.getBean("txnTaskExecutor");
-        taskExecutor.execute(orchestrator);
+        if (!synchRunMode) {
+            ThreadPoolTaskExecutor taskExecutor = SpringContextWrapper.getBean("txnTaskExecutor");
+            taskExecutor.execute(orchestrator);
+        }
+        else{
+            orchestrator.run();
+        }
     }
 
     private HazelcastInstance hazelcastInstance;

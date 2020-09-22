@@ -10,9 +10,12 @@ import com.reactiveminds.psi.common.TwoPCConversation;
 import com.reactiveminds.psi.common.err.InternalOperationFailed;
 import org.apache.kafka.clients.consumer.Consumer;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.util.Assert;
 
 import javax.annotation.PostConstruct;
+import java.nio.charset.StandardCharsets;
+import java.util.UUID;
 import java.util.concurrent.*;
 
 public class GridConversationalClient implements TwoPCConversation, AsyncTellFunction {
@@ -161,13 +164,17 @@ public class GridConversationalClient implements TwoPCConversation, AsyncTellFun
     private HazelcastInstance hazelcastInstance;
     @PostConstruct
     void init() {
-        partition = partition();
-        topic = "ringbuff-"+partition;
+        assignPartition();
+        topic = "psi.rb-"+partition;
     }
+    @Value("${psi.grid.2pc.ringbuff.maxParts:8}")
+    int partitionSize;
 
-    private int partition(){
+    private void assignPartition(){
         Assert.notNull(hazelcastInstance, "hazelcast instance not set");
-        return hazelcastInstance.getPartitionService().getPartition(corrKey).getPartitionId();
+        UUID uuid = UUID.nameUUIDFromBytes(corrKey.getBytes(StandardCharsets.UTF_8));
+        partition = partitionSize > 0 ? Math.abs (corrKey.hashCode() % partitionSize)
+                : hazelcastInstance.getPartitionService().getPartition(corrKey).getPartitionId();
     }
     @Override
     public int getPartition() {

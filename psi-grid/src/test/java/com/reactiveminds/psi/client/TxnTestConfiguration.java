@@ -1,6 +1,5 @@
 package com.reactiveminds.psi.client;
 
-import com.reactiveminds.psi.common.imdg.ClientConfiguration;
 import com.reactiveminds.psi.server.loaders.LoaderConfiguration;
 import org.springframework.boot.autoconfigure.kafka.KafkaAutoConfiguration;
 import org.springframework.boot.test.context.TestConfiguration;

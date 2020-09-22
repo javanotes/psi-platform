@@ -1,4 +1,4 @@
-package com.reactiveminds.psi.common.imdg;
+package com.reactiveminds.psi.client;
 
 import com.reactiveminds.psi.client.GridTransaction;
 import com.reactiveminds.psi.client.GridTransactionContext;
