@@ -1,4 +1,4 @@
-package com.reactiveminds.psi.common;
+package com.reactiveminds.psi.common.util;
 
 import org.apache.avro.Schema;
 import org.apache.avro.io.*;

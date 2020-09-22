@@ -1,6 +1,6 @@
 package com.reactiveminds.psi.common.kafka.tools;
 
-import com.reactiveminds.psi.common.StopWatch;
+import com.reactiveminds.psi.common.util.StopWatch;
 import com.reactiveminds.psi.common.err.InternalOperationFailed;
 import com.reactiveminds.psi.common.kafka.pool.BytesMessagePayload;
 import com.reactiveminds.psi.common.kafka.pool.KafkaConsumerPool;
@@ -23,7 +23,7 @@ import java.util.concurrent.ExecutionException;
 import java.util.concurrent.TimeUnit;
 import java.util.concurrent.TimeoutException;
 
-
+@Deprecated
 public class RequestReplyClient {
 
 	@Autowired

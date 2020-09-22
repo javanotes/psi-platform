@@ -1,5 +1,6 @@
 package com.reactiveminds.psi.common.kafka;
 
+import com.reactiveminds.psi.SpringContextWrapper;
 import com.reactiveminds.psi.common.kafka.pool.KafkaConsumerPool;
 import com.reactiveminds.psi.common.kafka.tools.ConversationalClient;
 import com.reactiveminds.psi.common.kafka.tools.RequestReplyClient;
@@ -24,32 +25,6 @@ import org.springframework.kafka.core.ProducerFactory;
 public class KafkaClientsConfiguration {
     @Autowired
     private KafkaProperties kafkaProperties;
-
-    /**
-     *
-     * @param topic
-     * @param txnId
-     * @return
-     */
-    @Scope(scopeName = ConfigurableBeanFactory.SCOPE_PROTOTYPE)
-    @Bean
-    ConversationalClient conversationLeader(String topic, String txnId){
-        return new ConversationalClient(topic, txnId);
-    }
-
-    /**
-     *
-     * @param topic
-     * @param singlePartition
-     * @param txnId
-     * @param fromOffset
-     * @return
-     */
-    @Scope(scopeName = ConfigurableBeanFactory.SCOPE_PROTOTYPE)
-    @Bean
-    ConversationalClient conversationFollower(String topic, String txnId, int singlePartition, long fromOffset){
-        return new ConversationalClient(new TopicPartition(topic, singlePartition), txnId, fromOffset);
-    }
 
     @Bean
     RequestReplyClient requestReplyClient(){

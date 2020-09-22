@@ -3,6 +3,9 @@ package com.reactiveminds.psi.server;
 import com.hazelcast.config.*;
 import com.hazelcast.core.Hazelcast;
 import com.hazelcast.core.HazelcastInstance;
+import com.reactiveminds.psi.SpringContextWrapper;
+import com.reactiveminds.psi.common.TwoPCConversationClientFactory;
+import com.reactiveminds.psi.common.imdg.TransactionOrchestrator;
 import com.reactiveminds.psi.server.loaders.LoaderConfiguration;
 import com.reactiveminds.psi.common.OperationSet;
 import com.reactiveminds.psi.common.kafka.KafkaClientsConfiguration;
@@ -16,7 +19,9 @@ import org.springframework.boot.autoconfigure.condition.ConditionalOnProperty;
 import org.springframework.context.ApplicationContext;
 import org.springframework.context.annotation.*;
 import org.springframework.core.io.Resource;
+import org.springframework.core.task.TaskExecutor;
 import org.springframework.scheduling.annotation.EnableAsync;
+import org.springframework.scheduling.concurrent.ThreadPoolTaskExecutor;
 import org.springframework.util.ResourceUtils;
 import org.springframework.util.StringUtils;
 
@@ -26,7 +31,7 @@ import java.net.URL;
 import java.util.Properties;
 
 @EnableAsync
-@Import({KafkaClientsConfiguration.class, LoaderConfiguration.class})
+@Import({KafkaClientsConfiguration.class, LoaderConfiguration.class, TwoPCConversationClientFactory.class})
 @ConditionalOnProperty(name = "run.mode", havingValue = "server", matchIfMissing = true)
 @Configuration
 public class ServerConfiguration {
@@ -41,8 +46,33 @@ public class ServerConfiguration {
     private int txnEntryTTLSecs;
     @Value("${psi.grid.txn2PCTTLSecs:60}")
     private int txn2PCTTLSecs;
+    @Value("${psi.grid.txnExecutor.maxPoolSize:20}")
+    private int maxPoolSize;
+    @Value("${psi.grid.txnExecutor.corePoolSize:10}")
+    private int corePoolSize;
+    @Value("${psi.grid.txnExecutor.queueCapacity:1000}")
+    private int queueCapacity;
+    @Value("${psi.grid.txnExecutor.keepAliveSeconds:60}")
+    private int keepAliveSeconds;
+
+
+
     @Autowired
     ApplicationContext context;
+
+    @Bean
+    ThreadPoolTaskExecutor txnTaskExecutor(){
+        ThreadPoolTaskExecutor executor = new ThreadPoolTaskExecutor();
+        executor.setMaxPoolSize(maxPoolSize);
+        executor.setCorePoolSize(corePoolSize);
+        if (queueCapacity > 0) {
+            executor.setQueueCapacity(queueCapacity);
+        }
+        executor.setAllowCoreThreadTimeOut(false);
+        executor.setKeepAliveSeconds(keepAliveSeconds);
+        executor.setThreadNamePrefix("PSI.Txn.Mgr-");
+        return executor;
+    }
 
     @Autowired
     private ListableBeanFactory beanFactory;
@@ -64,6 +94,10 @@ public class ServerConfiguration {
         return config;
     }
 
+    @Bean
+    SpringContextWrapper contextWrapper(){
+        return new SpringContextWrapper();
+    }
     @Bean
     SslServer sslServer(){
         return new SslServer();

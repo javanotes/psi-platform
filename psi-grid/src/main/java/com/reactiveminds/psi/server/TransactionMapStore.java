@@ -16,18 +16,19 @@ import java.util.concurrent.Future;
 import java.util.concurrent.TimeUnit;
 import java.util.concurrent.atomic.AtomicInteger;
 
-
+@Deprecated
 class TransactionMapStore implements MapStore<String, OperationSet> {
     public TransactionMapStore(Properties p) {
         props = p;
     }
     private Properties props;
     private ExecutorService executor;
-    @PostConstruct
+
+    //@PostConstruct
     void init(){
         AtomicInteger a = new AtomicInteger(1);
-        executor = Executors.newFixedThreadPool(Integer.parseInt(props.getProperty("manager.threads", "10")), r -> {
-            Thread t = new Thread(r, "psi.Txn.Manager-"+a.getAndIncrement());
+        executor = Executors.newFixedThreadPool(Integer.parseInt(props.getProperty("manager.threads", "20")), r -> {
+            Thread t = new Thread(r, "PSI.Txn.Manager-"+a.getAndIncrement());
             return t;
         });
     }
@@ -46,10 +47,13 @@ class TransactionMapStore implements MapStore<String, OperationSet> {
 
     @Override
     public void store(String s, OperationSet operationSet) {
+        /*
         TransactionOrchestrator orchestrator = beanFactory.getBean(TransactionOrchestrator.class, operationSet);
-        //orchestrator.setTxnTTL(TimeUnit.SECONDS.toMillis(Long.parseLong(props.getProperty("ttl")) ));
+        orchestrator.setWorkerThreads(executor);
         orchestrator.initiateProtocol();
         executor.submit(orchestrator);
+
+         */
     }
 
     @Override

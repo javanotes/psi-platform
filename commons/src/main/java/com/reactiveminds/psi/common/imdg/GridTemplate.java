@@ -1,7 +1,8 @@
-package com.reactiveminds.psi.client;
+package com.reactiveminds.psi.common.imdg;
 
 import com.hazelcast.core.HazelcastInstance;
 import com.reactiveminds.psi.common.DataWrapper;
+import com.reactiveminds.psi.client.GridOperation;
 import com.reactiveminds.psi.common.err.LockWaitTimeoutException;
 import io.confluent.kafka.streams.serdes.avro.SpecificAvroDeserializer;
 import io.confluent.kafka.streams.serdes.avro.SpecificAvroSerializer;

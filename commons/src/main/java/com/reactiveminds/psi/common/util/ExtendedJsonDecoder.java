@@ -17,7 +17,7 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package com.reactiveminds.psi.common;
+package com.reactiveminds.psi.common.util;
 
 import org.apache.avro.AvroTypeException;
 import org.apache.avro.Schema;

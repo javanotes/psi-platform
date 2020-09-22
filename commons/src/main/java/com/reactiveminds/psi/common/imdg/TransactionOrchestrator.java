@@ -1,33 +1,31 @@
-package com.reactiveminds.psi.server;
+package com.reactiveminds.psi.common.imdg;
 
 import com.hazelcast.config.MapConfig;
 import com.hazelcast.core.HazelcastInstance;
-import com.reactiveminds.psi.common.OperationSet;
-import com.reactiveminds.psi.common.SerdeUtils;
-import com.reactiveminds.psi.common.TwoPhase;
+import com.reactiveminds.psi.common.*;
 import com.reactiveminds.psi.common.err.GridTransactionException;
-import com.reactiveminds.psi.common.kafka.tools.ConversationalClient;
+import com.reactiveminds.psi.common.util.SerdeUtils;
 import org.apache.kafka.clients.producer.ProducerRecord;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import org.springframework.beans.factory.BeanFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.kafka.core.KafkaTemplate;
 
 import javax.annotation.PostConstruct;
-import java.io.IOException;
+import java.io.Serializable;
 import java.util.Map;
-import java.util.concurrent.ExecutionException;
-import java.util.concurrent.TimeUnit;
-import java.util.concurrent.TimeoutException;
+import java.util.concurrent.*;
 import java.util.stream.Collectors;
 
-class TransactionOrchestrator implements Runnable{
+public class TransactionOrchestrator implements Runnable, Serializable {
     private final OperationSet operationSet;
 
-    @Value("${psi.grid.2pc.enable:false}")
+    @Value("${psi.grid.2pc.enable:true}")
     boolean twoPhaseEnabled;
+
+    @Value("${psi.grid.2pc.clientType:RINGBUFF}")
+    TwoPCConversationClientFactory.Type clientType;
 
     @Value("${psi.grid.2pc.channel.topic:__psi.txn.channel}")
     private String txnChannel;
@@ -63,6 +61,7 @@ class TransactionOrchestrator implements Runnable{
                 .filter(m -> m.getProperties().containsKey("map") && m.getProperties().containsKey("event.topic.name"))
                 .collect(Collectors.toMap(m -> m.getProperty("map"), m -> m.getProperty("event.topic.name")));
     }
+
 
     /**
      * Trigger a new 2 phase commit process. The prepare() phase is completed when this method would return.
@@ -104,9 +103,35 @@ class TransactionOrchestrator implements Runnable{
      *          * END/ABORT-->>
      *
      */
-    private void applyTwoPhase(){
+    private void applyTwoPhase()  {
         log.info("Txn: {} preparing 2PC ", operationSet.getTxnId());
-        twoPhaseConverse = (ConversationalClient) beanFactory.getBean("conversationLeader", txnChannel, operationSet.getTxnId());
+
+        twoPhaseConverse = clientFactory.getLeader(clientType, txnChannel, operationSet.getTxnId());
+        beginTwoPhase();
+        /**
+         * NOTE: Hazelcast will not allow add to ringbuffer from mapstore thread
+         *
+         * It is not allowed to make operations from MapStore interface methods in case of write through. Because writethrough map store operations run on
+         * partition thread, and using another partition based operation(like Containskey) can cause deadlock. That is why we have a check and an exception there.
+         */
+    }
+
+    private TwoPCConversation twoPhaseConverse;
+
+    public ExecutorService getWorkerThreads() {
+        return workerThreads;
+    }
+
+    public void setWorkerThreads(ExecutorService workerThreads) {
+        this.workerThreads = workerThreads;
+    }
+
+    ExecutorService workerThreads;
+
+    /**
+     * Start phase-1 by sending PREPARE to participants
+     */
+    private void beginTwoPhase(){
         twoPhaseConverse.begin(TwoPhase.PREPARE);
         for(OperationSet.KeyValue op: operationSet.getOps()){
             try {
@@ -117,10 +142,13 @@ class TransactionOrchestrator implements Runnable{
                 rec.headers().add(OperationSet.HEADER_TXN_ID, SerdeUtils.stringToBytes(operationSet.getTxnId()));
                 rec.headers().add(OperationSet.HEADER_TXN_CHANNEL, SerdeUtils.stringToBytes(txnChannel));
                 rec.headers().add(OperationSet.HEADER_TXN_CHANNEL_PARTITION, SerdeUtils.intToBytes(twoPhaseConverse.getPartition()));
-                rec.headers().add(OperationSet.HEADER_TXN_CHANNEL_OFFSET, SerdeUtils.longToBytes(twoPhaseConverse.getWriteOffset()));
+                rec.headers().add(OperationSet.HEADER_TXN_CHANNEL_OFFSET,
+                        SerdeUtils.longToBytes(twoPhaseConverse.getWriteOffset()));
                 rec.headers().add(OperationSet.HEADER_TXN_TTL, SerdeUtils.longToBytes(txnChannelTimeout));
+                rec.headers().add(OperationSet.HEADER_TXN_CLIENT_TYP, SerdeUtils.stringToBytes(clientType.name()));
+
                 producer.send(rec).get();
-                log.debug("Txn: {}, published to event topic - {}. 2pc begin read offset {}", operationSet.getTxnId(), mapStoreTopic.get(op.getMap()), twoPhaseConverse.getReadOffset());
+                log.info("Txn: {}, published to event topic - {}. 2pc begin read offset {}", operationSet.getTxnId(), mapStoreTopic.get(op.getMap()), twoPhaseConverse.getReadOffset());
             }
             catch (InterruptedException e) {
                 Thread.currentThread().interrupt();
@@ -133,8 +161,13 @@ class TransactionOrchestrator implements Runnable{
         }
         commenced = true;
     }
-    private ConversationalClient twoPhaseConverse;
 
+    /**
+     * Execute a commit protocol (One OR Two phased), based on the configuration. For 1P, the change data captured will be synchronously written
+     * to store event topics only.
+     * For 2P, writing to event topics happens synchronously, and in a background thread a consensus is orchestrated amongst the store participants,
+     * to achieve an all-or-none persistence.
+     */
     public void initiateProtocol(){
         boolean match = operationSet.getOps().stream().anyMatch(kv -> !mapStoreTopic.containsKey(kv.getMap()));
         if(match)
@@ -173,28 +206,27 @@ class TransactionOrchestrator implements Runnable{
     }
 
     @Autowired
-    BeanFactory beanFactory;
+    TwoPCConversationClientFactory clientFactory;
     @Override
     public void run() {
         try {
             if(commenced){
-                run2pc();
+                proceedTwoPhase();
             }
         } catch (Exception e) {
-            e.printStackTrace();
-        } finally {
-            try {
-                if (twoPhaseConverse != null) {
-                    twoPhaseConverse.close();
-                }
-            } catch (IOException e) {
-                e.printStackTrace();
-            }
+            log.warn("Async 2PC orchestration error. Changes to state store will be reverted possibly", e);
+        }
+        finally {
+
         }
     }
 
     private static final Logger log = LoggerFactory.getLogger(TransactionOrchestrator.class);
-    private void run2pc() {
+
+    /**
+     *
+     */
+    void proceedTwoPhase() {
         int n = operationSet.participantCount();
         log.debug("No of participants {}, for txn# {}", n, operationSet.getTxnId());
         String response = null;

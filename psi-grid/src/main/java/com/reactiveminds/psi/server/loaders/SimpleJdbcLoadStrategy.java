@@ -1,7 +1,7 @@
 package com.reactiveminds.psi.server.loaders;
 
+import com.reactiveminds.psi.common.util.JsonUtils;
 import com.reactiveminds.psi.server.KeyLoadStrategy;
-import com.reactiveminds.psi.common.JsonUtils;
 import org.apache.avro.specific.SpecificRecord;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.jdbc.core.namedparam.BeanPropertySqlParameterSource;

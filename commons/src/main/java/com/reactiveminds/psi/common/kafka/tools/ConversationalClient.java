@@ -1,8 +1,8 @@
 package com.reactiveminds.psi.common.kafka.tools;
 
-import com.reactiveminds.psi.common.SerdeUtils;
-import com.reactiveminds.psi.common.StopWatch;
-import com.reactiveminds.psi.common.TwoPhaseCommitConversation;
+import com.reactiveminds.psi.common.util.SerdeUtils;
+import com.reactiveminds.psi.common.util.StopWatch;
+import com.reactiveminds.psi.common.TwoPCConversation;
 import com.reactiveminds.psi.common.err.InternalOperationFailed;
 import com.reactiveminds.psi.common.kafka.StringKafkaConsumerPool;
 import com.reactiveminds.psi.common.kafka.StringKafkaTemplate;
@@ -20,7 +20,6 @@ import org.springframework.util.concurrent.ListenableFuture;
 
 import javax.annotation.PostConstruct;
 import javax.annotation.PreDestroy;
-import java.io.Closeable;
 import java.io.IOException;
 import java.time.Duration;
 import java.util.Collections;
@@ -29,7 +28,7 @@ import java.util.concurrent.ExecutionException;
 import java.util.concurrent.TimeUnit;
 import java.util.concurrent.TimeoutException;
 
-public class ConversationalClient implements TwoPhaseCommitConversation, Closeable {
+public class ConversationalClient implements TwoPCConversation {
     private static final Logger log = LoggerFactory.getLogger(ConversationalClient.class);
     @Autowired
     StringKafkaTemplate producer;
@@ -39,6 +38,7 @@ public class ConversationalClient implements TwoPhaseCommitConversation, Closeab
     private int partition;
     private String corrKey;
 
+    @Override
     public long getWriteOffset() {
         return writeOffset;
     }
@@ -67,10 +67,12 @@ public class ConversationalClient implements TwoPhaseCommitConversation, Closeab
     void init(){
 
     }
+    @Override
     public int getPartition() {
         return partition;
     }
 
+    @Override
     public long getReadOffset() {
         return readOffset;
     }
@@ -82,7 +84,7 @@ public class ConversationalClient implements TwoPhaseCommitConversation, Closeab
         }
     }
 
-    private static final String MASTER = "++m";
+    public static final String MASTER = "++m";
     private ListenableFuture<SendResult<String, String>> doSend(String hello){
         ProducerRecord<String, String> rec = new ProducerRecord<>(topic, corrKey, hello);
         if(isStarter){
@@ -113,6 +115,7 @@ public class ConversationalClient implements TwoPhaseCommitConversation, Closeab
         }
     }
 
+    @Override
     public String getTopic() {
         return topic;
     }
@@ -186,7 +189,6 @@ public class ConversationalClient implements TwoPhaseCommitConversation, Closeab
     }
 
     @PreDestroy
-    @Override
     public void close() throws IOException {
 
     }

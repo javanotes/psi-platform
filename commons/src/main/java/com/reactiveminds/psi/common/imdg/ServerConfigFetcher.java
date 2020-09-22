@@ -1,4 +1,4 @@
-package com.reactiveminds.psi.client;
+package com.reactiveminds.psi.common.imdg;
 
 import com.hazelcast.core.HazelcastInstance;
 import com.hazelcast.core.HazelcastInstanceAware;

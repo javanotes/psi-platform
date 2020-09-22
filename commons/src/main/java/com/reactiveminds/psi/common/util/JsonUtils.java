@@ -1,4 +1,4 @@
-package com.reactiveminds.psi.common;
+package com.reactiveminds.psi.common.util;
 
 import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.fasterxml.jackson.annotation.JsonInclude;

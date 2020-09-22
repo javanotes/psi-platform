@@ -1,5 +1,7 @@
-package com.reactiveminds.psi.client;
+package com.reactiveminds.psi.common.imdg;
 
+import com.reactiveminds.psi.client.GridTransaction;
+import com.reactiveminds.psi.client.GridTransactionContext;
 import org.springframework.beans.factory.BeanFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 

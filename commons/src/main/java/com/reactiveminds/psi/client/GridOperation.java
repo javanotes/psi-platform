@@ -53,7 +53,7 @@ public interface GridOperation {
      * @param keyList
      * @param <K>
      */
-    <K extends SpecificRecord> void evict(K...keyList);
+    <K extends SpecificRecord> void evict(K... keyList);
 
     /**
      * Evict all keys from grid map. Does not change underlying store

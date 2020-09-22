@@ -1,4 +1,4 @@
-package com.reactiveminds.psi.client;
+package com.reactiveminds.psi.common.imdg;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;

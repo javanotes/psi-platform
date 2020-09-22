@@ -1,8 +1,10 @@
 package com.reactiveminds.psi.streams.processor;
 
 import com.reactiveminds.psi.common.OperationSet;
-import com.reactiveminds.psi.common.SerdeUtils;
+import com.reactiveminds.psi.common.TwoPCConversation;
+import com.reactiveminds.psi.common.TwoPCConversationClientFactory;
 import com.reactiveminds.psi.common.kafka.tools.ConversationalClient;
+import com.reactiveminds.psi.common.util.SerdeUtils;
 import com.reactiveminds.psi.streams.config.AppProperties;
 import com.reactiveminds.psi.streams.config.StreamConfiguration;
 import org.apache.kafka.common.header.Header;
@@ -14,7 +16,6 @@ import org.apache.kafka.streams.state.KeyValueIterator;
 import org.apache.kafka.streams.state.KeyValueStore;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import org.springframework.beans.factory.BeanFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.core.task.TaskExecutor;
 import org.springframework.util.Assert;
@@ -35,7 +36,8 @@ public class StreamStateProcessor implements Processor<byte[], byte[]>, CommitPr
     AppProperties appProperties;
 
     @Autowired
-    BeanFactory beanFactory;
+    TwoPCConversationClientFactory beanFactory;
+
     private KeyValueStore<byte[], byte[]> stateStore;
     private KeyValueStore<byte[], byte[]> redoLogStore;
     @Override
@@ -50,12 +52,14 @@ public class StreamStateProcessor implements Processor<byte[], byte[]>, CommitPr
     protected void flushRedoLog() {
         long entries = redoLogStore.approximateNumEntries();
         if(entries > 0){
-            log.warn("Flushing redo log having {} entries, for store: {}", entries, storeName);
+            log.warn("Flushing redo log having {} entries, for store: {}. Will be skipped on a reload (?{})", entries, storeName, appProperties.isEnableCleanup());
             KeyValueIterator<byte[], byte[]> iterator = redoLogStore.all();
             try {
                 while (iterator.hasNext()){
                     KeyValue<byte[], byte[]> keyValue = iterator.next();
-                    stateStore.put(keyValue.key, keyValue.value);
+                    if (!appProperties.isEnableCleanup()) {
+                        stateStore.put(keyValue.key, keyValue.value);
+                    }
                     redoLogStore.delete(keyValue.key);
                 }
                 redoLogStore.flush();
@@ -78,7 +82,7 @@ public class StreamStateProcessor implements Processor<byte[], byte[]>, CommitPr
         }
         return txn;
     }
-    private ConversationalClient getConversationClient(){
+    private TwoPCConversation getConversationClient(){
         Headers headers = processorContext.headers();
         Header header = headers.lastHeader(OperationSet.HEADER_TXN_ID);
         String txnId = SerdeUtils.bytesToString(header.value());
@@ -88,13 +92,15 @@ public class StreamStateProcessor implements Processor<byte[], byte[]>, CommitPr
         int part = SerdeUtils.bytesToInt(header.value());
         header = headers.lastHeader(OperationSet.HEADER_TXN_CHANNEL_OFFSET);
         long offset = SerdeUtils.bytesToLong(header.value());
+        header = headers.lastHeader(OperationSet.HEADER_TXN_CLIENT_TYP);
 
-        return (ConversationalClient) beanFactory.getBean("conversationFollower", topic, txnId, part, offset);
+        TwoPCConversationClientFactory.Type type = TwoPCConversationClientFactory.Type.valueOf(SerdeUtils.bytesToString(header.value()));
+        return beanFactory.getFollower(type, topic, txnId, part, offset);
     }
     @Override
     public void process(byte[] k, byte[] v) {
         log.debug("received message from, {}-[{}]-[{}]", processorContext.topic(), processorContext.partition(), processorContext.offset());
-        if(isTransactional()){
+        if(!appProperties.isEnableCleanup() && isTransactional()){
             processTransactional(k,v);
         }
         else {
@@ -118,7 +124,7 @@ public class StreamStateProcessor implements Processor<byte[], byte[]>, CommitPr
     @Autowired
     TaskExecutor taskExecutor;
     private void processTransactional(byte[] k, byte[] v) {
-        ConversationalClient twoPhaseConverse = getConversationClient();
+        TwoPCConversation twoPhaseConverse = getConversationClient();
         Headers headers = processorContext.headers();
         Header header = headers.lastHeader(OperationSet.HEADER_TXN_TTL);
         long ttl = SerdeUtils.bytesToLong(header.value());

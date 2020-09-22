@@ -1,19 +1,18 @@
 package com.reactiveminds.psi.streams.processor;
 
+import com.reactiveminds.psi.common.TwoPCConversation;
 import com.reactiveminds.psi.common.TwoPhase;
-import com.reactiveminds.psi.common.kafka.tools.ConversationalClient;
 import org.apache.kafka.streams.state.KeyValueStore;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.util.Assert;
 
-import java.io.IOException;
 import java.util.concurrent.TimeUnit;
 import java.util.concurrent.TimeoutException;
 
 class TransactionPhaseRunner implements Runnable {
     private static final Logger log = LoggerFactory.getLogger(TransactionPhaseRunner.class);
-    private final ConversationalClient twoPhaseConverse;
+    private final TwoPCConversation twoPhaseConverse;
     private final long ttl;
 
     public void setStoreName(String storeName) {
@@ -35,7 +34,7 @@ class TransactionPhaseRunner implements Runnable {
     private final byte[] k;
     private final byte[] v;
 
-    public TransactionPhaseRunner(ConversationalClient twoPhaseConverse, long ttl, byte[] k, byte[] v) {
+    public TransactionPhaseRunner(TwoPCConversation twoPhaseConverse, long ttl, byte[] k, byte[] v) {
         this.twoPhaseConverse = twoPhaseConverse;
         this.ttl = ttl;
         this.k = k;
@@ -132,11 +131,6 @@ class TransactionPhaseRunner implements Runnable {
             log.error("", e);
         }
         finally {
-            try {
-                twoPhaseConverse.close();
-            } catch (IOException e) {
-                e.printStackTrace();
-            }
             redoLogStore.delete(k);
         }
     }

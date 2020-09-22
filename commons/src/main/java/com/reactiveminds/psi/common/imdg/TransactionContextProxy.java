@@ -1,10 +1,13 @@
-package com.reactiveminds.psi.client;
+package com.reactiveminds.psi.common.imdg;
 
+import com.hazelcast.core.ExecutionCallback;
 import com.hazelcast.core.HazelcastInstance;
 import com.hazelcast.transaction.TransactionContext;
 import com.hazelcast.transaction.TransactionOptions;
 import com.reactiveminds.psi.common.DataWrapper;
 import com.reactiveminds.psi.common.OperationSet;
+import com.reactiveminds.psi.client.GridTransactionContext;
+import com.reactiveminds.psi.common.err.GridOperationFailedException;
 import com.reactiveminds.psi.common.err.GridTransactionException;
 import io.confluent.kafka.streams.serdes.avro.SpecificAvroDeserializer;
 import io.confluent.kafka.streams.serdes.avro.SpecificAvroSerializer;
@@ -13,7 +16,9 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 
 import javax.annotation.PostConstruct;
+import java.util.concurrent.CountDownLatch;
 import java.util.concurrent.TimeUnit;
+import java.util.concurrent.atomic.AtomicBoolean;
 
 class TransactionContextProxy implements GridTransactionContext {
     private TransactionContext context;
@@ -56,7 +61,7 @@ class TransactionContextProxy implements GridTransactionContext {
             flushOperationSet();
             /**
              * It is possible to have inconsistent data across grid and store! The Hazelcast commit and write through are not
-             * in transaction. So on an exception on write through, we are evicting the commited entries from grid.
+             * in a 'complete synchronous transaction'. So on an exception on write through, we are evicting the committed entries from grid.
              *
              * However, boundary condition - grid transaction is complete, write through exception is raise, but before the
              * eviction completes, the node goes down. So now the grid has the latest transaction, but not the backing store. To
@@ -71,9 +76,32 @@ class TransactionContextProxy implements GridTransactionContext {
         }
     }
 
-    private void flushOperationSet() {
+    protected void flushOperationSet() {
         mapKeys.coalesce();
-        hazelcastInstance.getMap(OperationSet.TXN_MAP).set(context.getTxnId().toString(), mapKeys, 60, TimeUnit.SECONDS);
+        GridOperationFailedException fe = new GridOperationFailedException("remote execution failed on 2pc");
+        CountDownLatch l = new CountDownLatch(1);
+        AtomicBoolean fail = new AtomicBoolean(false);
+        hazelcastInstance.getExecutorService(OperationSet.TXN_MAP).submitToKeyOwner(new TransactionOrchestratorRunner(mapKeys), mapKeys.getTxnId(), new ExecutionCallback<Void>() {
+            @Override
+            public void onResponse(Void aVoid) {
+                l.countDown();
+            }
+
+            @Override
+            public void onFailure(Throwable throwable) {
+                fe.initCause(throwable);
+                fail.set(true);
+                l.countDown();
+            }
+        });
+        try {
+            l.await(60, TimeUnit.SECONDS);
+        } catch (InterruptedException e) {
+            Thread.currentThread().interrupt();
+        }
+        if(fail.get())
+            throw  fe;
+        //hazelcastInstance.getMap(OperationSet.TXN_MAP).set(context.getTxnId().toString(), mapKeys, 60, TimeUnit.SECONDS);
     }
 
     private void evictCommitted() {

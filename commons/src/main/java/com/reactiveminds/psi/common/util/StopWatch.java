@@ -1,4 +1,4 @@
-package com.reactiveminds.psi.common;
+package com.reactiveminds.psi.common.util;
 
 public class StopWatch {
 

@@ -3,7 +3,7 @@ package com.reactiveminds.psi.common;
 import java.util.concurrent.TimeUnit;
 import java.util.concurrent.TimeoutException;
 
-public interface TwoPhaseCommitConversation {
+public interface TwoPCConversation extends IndexAware{
     void begin(String hello);
 
     void tell(String hello);

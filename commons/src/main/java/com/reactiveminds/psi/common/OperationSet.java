@@ -16,6 +16,7 @@ public class OperationSet implements Externalizable {
     public static final String HEADER_TXN_CHANNEL = "psi.txn.channel";
     public static final String HEADER_TXN_CHANNEL_PARTITION = "psi.txn.channel.part";
     public static final String HEADER_TXN_CHANNEL_OFFSET = "psi.txn.channel.off";
+    public static final String HEADER_TXN_CLIENT_TYP = "psi.txn.client.typ";
 
     public void coalesce(){
         Collection<KeyValue> values = getOps().stream().collect(Collectors.toMap(KeyValue::getMap, Function.identity()))

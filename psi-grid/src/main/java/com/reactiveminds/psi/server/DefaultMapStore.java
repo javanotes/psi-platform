@@ -86,7 +86,7 @@ class DefaultMapStore implements EntryStore<byte[], DataWrapper>, DiscoverableMa
     public void store(byte[] bytes, MetadataAwareValue<DataWrapper> metadataAwareValue) {
         try {
             if (!metadataAwareValue.getValue().isTransactional()) {
-                only_for_testing(bytes);
+                //only_for_testing(bytes);
                 publish(bytes, metadataAwareValue.getValue());
 
             }
@@ -146,7 +146,9 @@ class DefaultMapStore implements EntryStore<byte[], DataWrapper>, DiscoverableMa
 
     @Override
     public void entryEvicted(EntryEvent<byte[], DataWrapper> entryEvent) {
-        if (entryEvent != null && entryEvent.getKey() != null) {
+        // entry evicted callback for a null value can come only in case of a 2pc rollback
+        // and we want to ignore that
+        if (entryEvent != null && entryEvent.getKey() != null && entryEvent.getValue() != null) {
             try {
                 publish(entryEvent.getKey(), entryEvent.getValue());
             } catch (ExecutionException e) {

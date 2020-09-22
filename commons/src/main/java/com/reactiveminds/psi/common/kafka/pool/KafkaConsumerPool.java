@@ -1,6 +1,6 @@
 package com.reactiveminds.psi.common.kafka.pool;
 
-import com.reactiveminds.psi.common.JsonUtils;
+import com.reactiveminds.psi.common.util.JsonUtils;
 import org.apache.commons.pool2.impl.GenericObjectPool;
 import org.apache.kafka.clients.consumer.Consumer;
 import org.apache.kafka.common.TopicPartition;
@@ -8,7 +8,6 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.autoconfigure.kafka.KafkaProperties;
-import org.springframework.util.Assert;
 
 import javax.annotation.PostConstruct;
 import java.util.Arrays;

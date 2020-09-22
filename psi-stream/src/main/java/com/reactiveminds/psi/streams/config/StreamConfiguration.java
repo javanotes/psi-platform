@@ -1,5 +1,6 @@
 package com.reactiveminds.psi.streams.config;
 
+import com.reactiveminds.psi.common.imdg.ClientConfiguration;
 import com.reactiveminds.psi.common.kafka.KafkaClientsConfiguration;
 import com.reactiveminds.psi.streams.processor.StreamStateProcessor;
 import com.reactiveminds.psi.streams.processor.TransactionStateProcessor;
@@ -36,7 +37,7 @@ import java.util.Arrays;
 import java.util.Properties;
 import java.util.concurrent.ExecutionException;
 
-@Import(KafkaClientsConfiguration.class)
+@Import({KafkaClientsConfiguration.class, ClientConfiguration.class})
 @Configuration
 @EnableConfigurationProperties({AppProperties.class})
 public class StreamConfiguration {
@@ -87,7 +88,7 @@ public class StreamConfiguration {
     ThreadPoolTaskExecutor txnWorkers(){
         ThreadPoolTaskExecutor poolTaskExecutor = new ThreadPoolTaskExecutor();
         poolTaskExecutor.setAllowCoreThreadTimeOut(false);
-        poolTaskExecutor.setThreadNamePrefix("psi.Txn.Agent-");
+        poolTaskExecutor.setThreadNamePrefix("PSI.Txn.Agent-");
         poolTaskExecutor.setCorePoolSize(txnmaxThreads);
         poolTaskExecutor.setMaxPoolSize(txnmaxThreads);
         return poolTaskExecutor;
@@ -115,11 +116,7 @@ public class StreamConfiguration {
         final Topology builder = new Topology();
 
         Assert.isTrue(!appProperties.getApp().isEmpty(), "No `psi.stream.app.<event.topic.name>=<map name>` configuration found! Cannot run stream");
-        if(appProperties.getApp().size() > 1){
-            log.warn("More than 1 stream.app mapping found. This is not recommended, as it might result in task-to-thread imbalance leading to " +
-                    "transactions timing out unnecessarily. Tip: Check the number of tasks created and thread allotment from logs. There should be " +
-                    "no thread allocated to more than 1 store");
-        }
+
         appProperties.getApp().forEach((topic, map) -> {
             builder.addSource(topic, topic);
             try {
@@ -155,6 +152,11 @@ public class StreamConfiguration {
         });
 
         log.info(builder.describe()+"");
+        if(appProperties.getApp().size() > 1){
+            log.warn("More than 1 stream.app mapping found. This is not recommended, as it might result in task-to-thread imbalance leading to " +
+                    "transactions timing out unnecessarily. Tip: Check the number of tasks created and thread allotment from logs. There should be " +
+                    "no thread allocated to more than 1 store\n");
+        }
         return streams;
     }
 

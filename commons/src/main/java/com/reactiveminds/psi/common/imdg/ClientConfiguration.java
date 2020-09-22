@@ -1,4 +1,4 @@
-package com.reactiveminds.psi.client;
+package com.reactiveminds.psi.common.imdg;
 
 import com.hazelcast.client.HazelcastClient;
 import com.hazelcast.client.config.ClientConfig;
@@ -7,11 +7,11 @@ import com.hazelcast.client.impl.clientside.ClientExceptionFactory;
 import com.hazelcast.client.impl.clientside.HazelcastClientProxy;
 import com.hazelcast.core.HazelcastInstance;
 import com.reactiveminds.psi.common.SerializableConfig;
+import com.reactiveminds.psi.common.TwoPCConversationClientFactory;
+import com.reactiveminds.psi.client.*;
 import com.reactiveminds.psi.common.err.GridOperationNotAllowedException;
 import com.reactiveminds.psi.common.err.ReadThroughOperationException;
 import com.reactiveminds.psi.common.err.WriteThroughOperationException;
-import io.confluent.kafka.streams.serdes.avro.SpecificAvroDeserializer;
-import io.confluent.kafka.streams.serdes.avro.SpecificAvroSerializer;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -21,10 +21,7 @@ import org.springframework.boot.autoconfigure.condition.ConditionalOnProperty;
 import org.springframework.boot.autoconfigure.kafka.KafkaProperties;
 import org.springframework.boot.context.properties.EnableConfigurationProperties;
 import org.springframework.context.ApplicationContext;
-import org.springframework.context.annotation.Bean;
-import org.springframework.context.annotation.Configuration;
-import org.springframework.context.annotation.Lazy;
-import org.springframework.context.annotation.Scope;
+import org.springframework.context.annotation.*;
 import org.springframework.core.io.Resource;
 import org.springframework.util.StringUtils;
 
@@ -34,8 +31,9 @@ import java.io.IOException;
 import java.util.concurrent.ExecutionException;
 import java.util.concurrent.Future;
 
+@Import(TwoPCConversationClientFactory.class)
 @EnableConfigurationProperties(KafkaProperties.class)
-@ConditionalOnProperty(name = "run.mode", havingValue = "client")
+@ConditionalOnProperty(name = "run.mode", havingValue = "client", matchIfMissing = true)
 @Configuration
 public class ClientConfiguration {
     private static final Logger log = LoggerFactory.getLogger(ClientConfiguration.class);
@@ -110,24 +108,13 @@ public class ClientConfiguration {
         return HazelcastClient.newHazelcastClient(clientConfig);
     }
 
-    @Bean
-    SpecificAvroSerializer avroSerializer(){
-        SpecificAvroSerializer ser = new SpecificAvroSerializer();
-        ser.configure(kafkaProperties.buildProducerProperties(), false);
-        return ser;
-    }
-    @Bean
-    SpecificAvroDeserializer avroDeSerializer(){
-        SpecificAvroDeserializer de = new SpecificAvroDeserializer();
-        de.configure(kafkaProperties.buildProducerProperties(), false);
-        return de;
-    }
     @Lazy
     @Bean
     @Scope(scopeName = ConfigurableBeanFactory.SCOPE_PROTOTYPE)
     GridTransactionContext transactionContext(){
         return new TransactionContextProxy();
     }
+
     @Autowired
     HazelcastInstance client;
 
